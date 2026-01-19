@@ -1,0 +1,58 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model CompanyProfile {
+  id                   String           @id @default(uuid())
+  company_name         String
+  registration_number  String?
+  vat_number           String?
+  tax_pin              String?
+  csd_number           String?
+  physical_address     String?
+  postal_address       String?
+  email                String?
+  phone                String?
+  cellphone            String?
+  signatory_name       String?
+  signatory_id_number  String?
+  signatory_title      String?
+  is_foreign_supplier  Boolean          @default(false)
+  is_accredited_rep    Boolean          @default(false)
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+  versions             ProfileVersion[]
+}
+
+model ProfileVersion {
+  id         String         @id @default(uuid())
+  profileId  String
+  snapshot   Json
+  createdAt  DateTime       @default(now())
+  profile    CompanyProfile @relation(fields: [profileId], references: [id])
+}
+
+model UploadedDocument {
+  id             String              @id @default(uuid())
+  filename       String
+  mimetype       String
+  path           String
+  uploadedAt     DateTime            @default(now())
+  extractedText  String?
+  detectedFields Json?
+  generatedDocs  GeneratedDocument[]
+}
+
+model GeneratedDocument {
+  id          String           @id @default(uuid())
+  documentId  String
+  filename    String
+  path        String
+  createdAt   DateTime         @default(now())
+  document    UploadedDocument @relation(fields: [documentId], references: [id])
+}
